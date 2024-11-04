@@ -13,31 +13,38 @@ const int MAZE_HEIGHT = 10;
 const int WALL_DENSITY = 5; // Lower is denser
 
 // Cell class to represent each cell in the maze
-class Cell {
+class Cell 
+{
 public:
     bool isWall;
     Cell() : isWall(false) {}
 };
 
 // Maze class to handle maze generation and operations
-class Maze {
+class Maze 
+{
 private:
     std::vector<std::vector<Cell>> maze; // Using std::vector
 public:
-    Maze() {
+    Maze() 
+    {
         maze.resize(MAZE_HEIGHT, std::vector<Cell>(MAZE_WIDTH));
-        for (int y = 0; y < MAZE_HEIGHT; ++y) {
-            for (int x = 0; x < MAZE_WIDTH; ++x) {
+        for (int y = 0; y < MAZE_HEIGHT; ++y) 
+        {
+            for (int x = 0; x < MAZE_WIDTH; ++x) 
+            {
                 maze[y][x].isWall = (rand() % WALL_DENSITY == 0); // Randomly place walls
             }
         }
     }
 
-    bool isWall(int x, int y) const {
+    bool isWall(int x, int y) const 
+    {
         return maze[y][x].isWall;
     }
 
-    std::pair<int, int> placeExit() { // Use std::pair
+    std::pair<int, int> placeExit() 
+    { // Use std::pair
         int exitX, exitY;
         do {
             exitX = rand() % MAZE_WIDTH;
@@ -46,13 +53,19 @@ public:
         return std::make_pair(exitX, exitY); // Use std::make_pair
     }
 
-    void display(SDL_Renderer* renderer) {
-        for (int y = 0; y < MAZE_HEIGHT; ++y) {
-            for (int x = 0; x < MAZE_WIDTH; ++x) {
+    void display(SDL_Renderer* renderer) 
+    {
+        for (int y = 0; y < MAZE_HEIGHT; ++y) 
+        {
+            for (int x = 0; x < MAZE_WIDTH; ++x) 
+            {
                 SDL_Rect cellRect = { x * 40, y * 40, 40, 40 };
-                if (isWall(x, y)) {
+                if (isWall(x, y)) 
+                {
                     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black for walls
-                } else {
+                } 
+                else 
+                {
                     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White for paths
                 }
                 SDL_RenderFillRect(renderer, &cellRect);
@@ -62,7 +75,8 @@ public:
 };
 
 // Main game class
-class Game {
+class Game 
+{
 private:
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -71,7 +85,8 @@ private:
     std::pair<int, int> exitPosition;
 
 public:
-    Game() {
+    Game() 
+    {
         srand(static_cast<unsigned>(time(nullptr))); // Seed random number generator
 
         SDL_Init(SDL_INIT_VIDEO);
@@ -82,12 +97,14 @@ public:
         placeExit();
     }
 
-    void placeExit() {
+    void placeExit() 
+    {
         auto exitCoords = maze.placeExit();
         exitPosition = { exitCoords.first * 40, exitCoords.second * 40 };
     }
 
-    void run() {
+    void run() 
+    {
         bool running = true;
         while (running) {
             processEvents(running);
@@ -97,10 +114,13 @@ public:
         cleanup();
     }
 
-    void processEvents(bool& running) {
+    void processEvents(bool& running)
+    {
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+        while (SDL_PollEvent(&event)) 
+        {
+            if (event.type == SDL_QUIT) 
+            {
                 running = false;
             }
         }
@@ -112,25 +132,30 @@ public:
         if (state[SDL_SCANCODE_D]) movePlayer(1, 0);
     }
 
-    void update() {
+    void update() 
+    {
         // Check for win condition
-        if (player.x == exitPosition.first && player.y == exitPosition.second) {
+        if (player.x == exitPosition.first && player.y == exitPosition.second) 
+        {
             std::cout << "You Win!" << std::endl;
             resetGame();
         }
     }
 
-    void movePlayer(int dx, int dy) {
+    void movePlayer(int dx, int dy) 
+    {
         int newX = (player.x / 40) + dx;
         int newY = (player.y / 40) + dy;
 
-        if (newX >= 0 && newX < MAZE_WIDTH && newY >= 0 && newY < MAZE_HEIGHT && !maze.isWall(newX, newY)) {
+        if (newX >= 0 && newX < MAZE_WIDTH && newY >= 0 && newY < MAZE_HEIGHT && !maze.isWall(newX, newY))
+        {
             player.x += dx * 40;
             player.y += dy * 40;
         }
     }
 
-    void render() {
+    void render() 
+    {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear color
         SDL_RenderClear(renderer);
         
@@ -147,21 +172,24 @@ public:
         SDL_RenderPresent(renderer);
     }
 
-    void resetGame() {
+    void resetGame() 
+    {
         maze = Maze(); // Create a new maze
         placeExit(); // Place a new exit
         player.x = 40; // Reset player position
         player.y = 40;
     }
 
-    void cleanup() {
+    void cleanup() 
+    {
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
     }
 };
 
-int main() {
+int main() 
+{
     Game game;
     game.run();
     return 0;
