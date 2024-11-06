@@ -24,7 +24,7 @@ public:
 class Maze 
 {
 private:
-    std::vector<std::vector<Cell>> maze; // Using std::vector
+    std::vector<std::vector<Cell> > maze; // Fix the space between '>'
 public:
     Maze() 
     {
@@ -93,14 +93,14 @@ public:
         window = SDL_CreateWindow("Maze Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 400, 400, 0);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         
-        player = { 40, 40, 30, 30 }; // Start position and size
+        player = SDL_Rect{ 40, 40, 30, 30 }; // Correct initialization for SDL_Rect
         placeExit();
     }
 
     void placeExit() 
     {
         auto exitCoords = maze.placeExit();
-        exitPosition = { exitCoords.first * 40, exitCoords.second * 40 };
+        exitPosition = std::make_pair(exitCoords.first * 40, exitCoords.second * 40); // Use std::make_pair for exitPosition
     }
 
     void run() 
@@ -154,6 +154,42 @@ public:
         }
     }
 
+    // Function to draw a circle
+    void drawCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius)
+    {
+        int x = radius - 1;
+        int y = 0;
+        int dx = 1;
+        int dy = 1;
+        int err = dx - (radius << 1);
+
+        while (x >= y)
+        {
+            SDL_RenderDrawPoint(renderer, centerX + x, centerY - y);
+            SDL_RenderDrawPoint(renderer, centerX + x, centerY + y);
+            SDL_RenderDrawPoint(renderer, centerX - x, centerY - y);
+            SDL_RenderDrawPoint(renderer, centerX - x, centerY + y);
+            SDL_RenderDrawPoint(renderer, centerX + y, centerY - x);
+            SDL_RenderDrawPoint(renderer, centerX + y, centerY + x);
+            SDL_RenderDrawPoint(renderer, centerX - y, centerY - x);
+            SDL_RenderDrawPoint(renderer, centerX - y, centerY + x);
+
+            if (err <= 0)
+            {
+                y++;
+                err += dy;
+                dy += 2;
+            }
+
+            if (err > 0)
+            {
+                x--;
+                dx += 2;
+                err += dx - (radius << 1);
+            }
+        }
+    }
+
     void render() 
     {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear color
@@ -166,8 +202,9 @@ public:
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for exit
         SDL_RenderFillRect(renderer, &exitRect);
 
+        // Draw the player as a circle
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green for player
-        SDL_RenderFillRect(renderer, &player);
+        drawCircle(renderer, player.x + player.w / 2, player.y + player.h / 2, player.w / 2);
 
         SDL_RenderPresent(renderer);
     }
